@@ -16,7 +16,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv
 from stable_baselines3.common.utils import set_random_seed
 from stable_baselines3.common.evaluation import evaluate_policy
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation # TENSORBOARD
 
 
 # Create a custom callback to log learning rate and episode rewards
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         # Create an animation that updates the plot every 100 milliseconds
         # graph = FuncAnimation(figure, update_data, fargs=(vec_env, axs, pcb, obs), interval=100)
 
-        model.learn(total_timesteps=25_000, callback=pcb)
+        model.learn(total_timesteps=5_000, callback=pcb)
 
         """
         plt.tight_layout()
