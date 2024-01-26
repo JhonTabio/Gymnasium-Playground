@@ -1,6 +1,6 @@
 import gymnasium as gym
 from stable_baselines3 import PPO
-from gymnasium.wrappers import RecordVideo
+from gymnasium.wrappers.record_video import RecordVideo
 
 # Continue with transfer learning on the slippery environment
 env = gym.make("FrozenLake-v1", is_slippery=True, render_mode="rgb_array")

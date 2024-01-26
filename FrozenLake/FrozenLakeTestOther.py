@@ -1,26 +1,18 @@
 import gymnasium as gym
 from stable_baselines3 import PPO
-from gymnasium.wrappers import RecordVideo
+from stable_baselines3.common.evaluation import evaluate_policy
+from gymnasium.wrappers.record_video import RecordVideo
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map as grm
 
-# Continue with transfer learning on the slippery environment
+#env = gym.make("FrozenLake-v1", is_slippery=False, render_mode="rgb_array")
 env = gym.make("FrozenLake-v1", desc=grm(size=4, p=0.7), is_slippery=False, render_mode="rgb_array")
-
-model = PPO(
-        "MlpPolicy", 
-        env, 
-        verbose=1, 
-        learning_rate = 0.003, 
-        ent_coef=0.07, 
-        gamma=0.99, 
-        n_steps=2048, 
-        batch_size=64, 
-        n_epochs=10, 
-        tensorboard_log="./log/tb_logs/testing")
-
 
 # Load the previously trained model
 model = PPO.load("./log/model/training/frozenlake_training", env)
+
+for i in range(5):
+    mean_reward = evaluate_policy(model, env, n_eval_episodes=10)[0]
+    print(f"Mean Reward: {mean_reward}")
 
 env = RecordVideo(env, video_folder="recordings/testing")
 
