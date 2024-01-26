@@ -40,7 +40,7 @@ class DataLogger(BaseCallback):
 
     def _on_rollout_end(self) -> None:
         self.episode_rewards.extend(self.locals["rewards"])
-        self.episode_steps.extend(self.locals["episode_lengths"])
+        self.episode_steps.append(self.locals["n_steps"])
         self.completion.extend([reward > 0 for reward in self.locals["rewards"]])
 
         return super()._on_rollout_end()
