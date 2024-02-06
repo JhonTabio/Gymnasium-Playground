@@ -19,31 +19,48 @@ class DataLogger(BaseCallback):
         self.save_path = save_path
         self.episode_rewards = []
         self.episode_steps = []
-        self.completion = []
         self.reward_avg = []
         self.steps_avg = []
-        self.completion_avg = []
 
         self.best_reward_avg = -np.inf
 
     def _on_step(self) -> bool:
+        print("----------sTATS---------")
+        print(self.locals,"\n")
+        print(self.locals["n_steps"], "\n")
+        print(self.locals["rewards"])
+        print("---------------END STATS-----------")
+
+       # Once an episode ends, new information is available 
+        for info in self.locals['infos']:
+            if 'episode' in info.keys():
+                self.episode_rewards.append(info['episode']['r'])
+                self.episode_steps.append(info['episode']['l'])
+                #self.episode_successes.append(info['is_success'] if 'is_success' in info else False)
+
         # Check if we reached our frequency mark
         if self.n_calls % self.check_freq == 0:
             self.reward_avg.append(np.mean(self.episode_rewards[-self.check_freq:]))
             self.steps_avg.append(np.mean(self.episode_steps[-self.check_freq:]))
-            self.completion_avg.append(np.mean(self.completion[-self.check_freq:]))
 
             if self.reward_avg[-1] > self.best_reward_avg:
                 self.model.save(self.save_path)
 
         return super()._on_step()
 
+    """
     def _on_rollout_end(self) -> None:
         self.episode_rewards.extend(self.locals["rewards"])
         self.episode_steps.append(self.locals["n_steps"])
-        self.completion.extend([reward > 0 for reward in self.locals["rewards"]])
+
+        print("----------ROLLO UT END sTATS---------")
+        print(self.locals,"\n")
+        print(self.locals["n_steps"], "\n")
+        print(self.locals["rewards"])
+        print("---------------ROLL OUT END STATS-----------")
 
         return super()._on_rollout_end()
+    """
 
 def make_env(index: int, seed: int=0):
     def __init__():
@@ -132,17 +149,26 @@ plt.ylabel("Reward")
 plt.title("Agent's rewards during training")
 plt.savefig("recordings/training/reward.png")
 
+# Clear the data
+plt.clf()
+
+# Plot the Steps per episode throughout training
 plt.plot(data_callback.steps_avg)
 plt.xlabel("Episodes")
 plt.ylabel("Steps")
 plt.title("Agent's steps during training")
 plt.savefig("recordings/training/steps.png")
 
-plt.plot(data_callback.completion_avg)
+plt.clf()
+
+plt.plot(np.interp(np.array(data_callback.reward_avg), [0, 1], [0, 8]))
+plt.plot(data_callback.steps_avg)
 plt.xlabel("Episodes")
-plt.ylabel("Success")
-plt.title("Agent's success during training")
-plt.savefig("recordings/training/success.png")
+plt.ylabel("Rewards / Steps")
+plt.title("Agent's rewards and steps during training")
+plt.savefig("recordings/training/overlap.png")
+
+
 #envs.close()
 #vec_env.close()
 
